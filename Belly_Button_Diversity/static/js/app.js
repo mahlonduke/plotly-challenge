@@ -1,18 +1,51 @@
 function buildMetadata(sample) {
-
-  // @TODO: Complete the following function that builds the metadata panel
-
   // Use `d3.json` to fetch the metadata for a sample
+  var url = `/metadata/${sample}`;
+  console.log(`The sample URL being used is: ${url}`);
+  var response = d3.json(url).then(function(response) {
     // Use d3 to select the panel with id of `#sample-metadata`
-
+    var samplePanel = d3.select("#sample-metadata");
     // Use `.html("") to clear any existing metadata
+    samplePanel.html("");
 
+
+    ********* Just need to add the below results into a table **********
+    
+    samplePanel.html(`${Object.keys(response)}`);
+    for(i in response) {
+      samplePanel.append("br").text(`${i}: ${response[i]}`);
+      console.log(`KV Pair: ${i}: ${response[i]}`);
+    };
+
+    /*
+    First attempt:
+    samplePanel.html("<table></table>").classed("sampleTable");
+    var sampleTable = d3.select(".sampleTable");
     // Use `Object.entries` to add each key and value pair to the panel
     // Hint: Inside the loop, you will need to use d3 to append new
     // tags for each key-value in the metadata.
+    response.forEach((element) => {
+      var row = sampleTable.selectAll("td").data(element).enter().append("tr");
+      row
+        .append("td")
+        .append("td")
+    });
+    */
+
+    /*
+    Example of metadata:
+    "AGE": 24,
+    "BBTYPE": "I",
+    "ETHNICITY": "Caucasian",
+    "GENDER": "F",
+    "LOCATION": "Beaufort/NC",
+    "WFREQ": 2,
+    "sample": 940
+    */
 
     // BONUS: Build the Gauge Chart
     // buildGauge(data.WFREQ);
+  });
 }
 
 function buildCharts(sample) {
