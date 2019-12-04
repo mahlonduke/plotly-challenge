@@ -18,12 +18,90 @@ function buildMetadata(sample) {
 function buildCharts(sample) {
 
   // @TODO: Use `d3.json` to fetch the sample data for the plots
+  var url = `/samples/${sample}`;
+  console.log(`The sample URL being used is: ${url}`);
+  var response = d3.json(url).then(function(response) {
+    var otu_ids = response.otu_ids;
+    var otu_labels = response.otu_labels;
+    var sample_values = `response.${sample}`;
 
-    // @TODO: Build a Bubble Chart using the sample data
+    console.log(response);
 
-    // @TODO: Build a Pie Chart
-    // HINT: You will need to use slice() to grab the top 10 sample_values,
-    // otu_ids, and labels (10 each).
+    // Replace the Labels' ';' with ', '
+    for(var i = 0; i < otu_labels.length; i++)
+    {
+      otu_labels[i] = otu_labels[i].replace(';', ', ');
+    }
+
+
+
+    //Build a Bubble Chart using the sample data
+
+    // Build the data object from the source DB
+    var data = [{
+      x: otu_ids,
+      y: sample_values,
+      mode: 'markers',
+      text: otu_labels,
+      marker: {
+        size: sample_values,
+        color: otu_ids
+      }
+    }]
+
+    // Create the desired layout
+    var layout = {
+      title: 'Belly Button Data',
+      showlegend: true,
+      height: 600,
+      width: 600
+    };
+
+    // Create the plot
+    Plotly.newPlot("bubble", data, layout);
+
+
+
+    // Build a Pie Chart
+
+    // Combine the two arrays into a list of objects
+    var list = [];
+    for (var i = 0; i < sample_values.length; i++)
+      list.push({'sample_values': sample_values[i], 'otu_ids': otu_ids[i]
+    });
+
+    // Sort the array by the objects' otu_ids
+    list.sort(function(a, b) {
+      return ((a.sample_values < b.sample_values) ? -1 : ((a.otu_ids == b.otu_ids) ? 0 : 1));
+    });
+
+    // Clear the arrays
+    var sample_values = [];
+    var otu_ids = [];
+    // Split the object back out into two separate arrays, but only take the first ten records
+    for (var i = 0; i < 10; i++) {
+      sample_values[i] = list[i].sample_values;
+      otu_ids[i] = list[i].otu_ids;
+    }
+
+    // Build the data object from the source DB
+    var data = [{
+      values: sample_values,
+      labels: otu_ids,
+      type: 'pie'
+    }]
+
+    // Create the desired layout
+    var layout = {
+      height: 400,
+      width: 500
+    };
+
+    // Create the plot
+    Plotly.newPlot('pie', data, layout);
+
+    });
+
 }
 
 function init() {
@@ -43,6 +121,7 @@ function init() {
     const firstSample = sampleNames[0];
     buildCharts(firstSample);
     buildMetadata(firstSample);
+    console.log(firstSample);
   });
 }
 
